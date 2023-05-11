@@ -82,63 +82,20 @@ class _HomePageState extends State<HomePage> {
           });
 
           try{
-            String results = await _simpleS3.uploadFile(
-                File(path),
-                fileName: "Example.jpg",
-                debugLog: true,
-                "upload",
-                "ap-south-1:e3eed97f-515f-4537-a26b-9978b01fc6ac",
-                accessControl: S3AccessControl.publicReadWrite,
-                AWSRegions.apSouth1);
-
-            Constants.printValue("First Results :: $results");
+            // String results = await _simpleS3.uploadFile(
+            //     File(path),
+            //     fileName: "Example.jpg",
+            //     debugLog: true,
+            //     "upload",
+            //     "ap-south-1:e3eed97f-515f-4537-a26b-9978b01fc6ac",
+            //     accessControl: S3AccessControl.publicReadWrite,
+            //     AWSRegions.apSouth1);
+            //
+            // Constants.printValue("First Results :: $results");
 
           }catch(e){
             Constants.printValue("First Error :: $e");
           }
-
-
-
-
-          // try{
-          //   final minio = Minio(
-          //       endPoint: 's3.amazonaws.com',
-          //       accessKey: 'AKIAZDH6KTHUZC4S2VXH',
-          //       secretKey: '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',
-          //       region: 'ap-south-1'
-          //   );
-          //
-          //   final stream = await minio.getObject('rohitsahu', path);
-          //
-          //   // Get object length
-          //   Constants.printValue("Get object length :: ${stream.contentLength}");
-          //
-          //   // Write object data stream to file
-          //   await stream.pipe(File(path).openWrite());
-          // }catch(e){
-          //   Constants.printValue("Second Error :: $e");
-          // }
-
-
-
-
-          // try{
-          //   String? result = await AwsS3.uploadFile(
-          //     accessKey: "AKIAZDH6KTHUZC4S2VXH",
-          //     secretKey: "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",
-          //     file: File(path),
-          //     bucket: "rohitsahu",
-          //     region: "ap-south-1",
-          //   );
-          //
-          //   Constants.printValue("Third Result :: $result");
-          // }catch(e){
-          //   Constants.printValue("Third Error :: $e");
-          // }
-
-
-
-
 
         },
         label: const Text('Upload'),
