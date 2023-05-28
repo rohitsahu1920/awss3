@@ -1,15 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:s3/constants/constants.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:simple_s3/simple_s3.dart';
-// ignore: depend_on_referenced_packages
-import 'package:aws_s3_upload/aws_s3_upload.dart';
-// ignore: depend_on_referenced_packages
-import 'package:minio/minio.dart';
+import 'package:dio/dio.dart';
 
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
+
+// ignore: depend_on_referenced_packages
+import 'package:mime/mime.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,7 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> paths = [];
-  final SimpleS3 _simpleS3 = SimpleS3();
+  final dio = Dio();
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +48,14 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
-                  onTap: () async {},
+                  onTap: () async {
+                    Constants.previewImg(paths[index],context,);
+                  },
                   borderRadius: BorderRadius.circular(10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
                     child: Row(
-                      children: const [
+                      children: [
                         Icon(Icons.upload),
                         SizedBox(
                           width: 20,
@@ -81,22 +85,32 @@ class _HomePageState extends State<HomePage> {
             paths.add(croppedPath);
           });
 
-          try{
-            // String results = await _simpleS3.uploadFile(
-            //     File(path),
-            //     fileName: "Example.jpg",
-            //     debugLog: true,
-            //     "upload",
-            //     "ap-south-1:e3eed97f-515f-4537-a26b-9978b01fc6ac",
-            //     accessControl: S3AccessControl.publicReadWrite,
-            //     AWSRegions.apSouth1);
-            //
-            // Constants.printValue("First Results :: $results");
+          Constants.printValue("Path :: $croppedPath");
 
-          }catch(e){
+          try {
+            String url =
+                "https://4urooft3g7.execute-api.eu-north-1.amazonaws.com/dev/fileuploads3-api/UploadedDoc.csv";
+
+            Uint8List image = File(croppedPath).readAsBytesSync();
+
+            final mimeType = lookupMimeType(croppedPath);
+            Constants.printValue("Mime type :: $mimeType");
+
+            var response = await http.put(
+              Uri.parse(url),
+              headers: {
+                'Content-Type': "$mimeType",
+                'Accept': "*/*",
+                'Content-Length': File(croppedPath).lengthSync().toString(),
+                'Connection': 'keep-alive',
+              },
+              body: File(croppedPath).readAsBytesSync(),
+            );
+
+            Constants.printValue("Response ${response.statusCode}");
+          } catch (e) {
             Constants.printValue("First Error :: $e");
           }
-
         },
         label: const Text('Upload'),
         icon: const Icon(Icons.upload),

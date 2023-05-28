@@ -90,4 +90,33 @@ class Constants {
 
     return croppedFile!.path;
   }
+
+  static previewImg(
+      String path,BuildContext context
+      ) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations
+          .of(context)
+          .modalBarrierDismissLabel,
+      barrierColor: Colors.black45,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (BuildContext buildContext,
+          Animation animation,
+          Animation secondaryAnimation,) {
+        return Center(
+          child: Container(
+            margin: const EdgeInsets.all(20.0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.file(File(path)),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

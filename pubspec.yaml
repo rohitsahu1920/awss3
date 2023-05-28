@@ -21,9 +21,9 @@ dev_dependencies:
   get: ^4.6.5
   image_picker: ^0.8.7+4
   image_cropper: ^3.0.3
-  simple_s3: ^0.3.2
-  aws_s3_upload: ^1.5.0
-  minio: ^3.5.0
+  dio: ^5.1.2
+  http: ^0.13.4
+  mime: ^1.0.4
 flutter:
 
   # The following line ensures that the Material Icons font is
