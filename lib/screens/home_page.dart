@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:s3/Controller.dart';
 import 'package:s3/constants/constants.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,6 +78,7 @@ class _HomePageState extends State<HomePage> {
 
 
           Constants.printValue("Cropped Path :: $croppedPath");
+          EasyLoading.show(status: 'loading...');
 
 
           bool value = await Controller.putMethodUpload(croppedPath: croppedPath);
@@ -91,6 +93,7 @@ class _HomePageState extends State<HomePage> {
               });
             }
           }
+          EasyLoading.dismiss();
         },
         label: const Text('Upload'),
         icon: const Icon(Icons.upload),
