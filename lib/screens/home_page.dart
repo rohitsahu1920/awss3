@@ -1,17 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:s3/Controller.dart';
 import 'package:s3/constants/constants.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:dio/dio.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
-
-// ignore: depend_on_referenced_packages
-import 'package:mime/mime.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,7 +13,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> paths = [];
-  final dio = Dio();
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +39,10 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () async {
-                    Constants.previewImg(paths[index],context,);
+                    Constants.previewImg(
+                      paths[index],
+                      context,
+                    );
                   },
                   borderRadius: BorderRadius.circular(10),
                   child: const Padding(
@@ -81,35 +74,22 @@ class _HomePageState extends State<HomePage> {
           String path = await Constants.imagePicker(
               fromCamera: type == "camera" ? true : false);
           String croppedPath = await Constants.imageCropper(path: path);
-          setState(() {
-            paths.add(croppedPath);
-          });
 
-          Constants.printValue("Path :: $croppedPath");
 
-          try {
-            String url =
-                "https://4urooft3g7.execute-api.eu-north-1.amazonaws.com/dev/fileuploads3-api/UploadedDoc.csv";
+          Constants.printValue("Cropped Path :: $croppedPath");
 
-            Uint8List image = File(croppedPath).readAsBytesSync();
 
-            final mimeType = lookupMimeType(croppedPath);
-            Constants.printValue("Mime type :: $mimeType");
+          bool value = await Controller.putMethodUpload(croppedPath: croppedPath);
+          Constants.printValue("After Upload :: $value");
+          if(value){
+            String value = await Controller.compressApi(croppedPath: croppedPath);
+            Constants.printValue("After Compressed :: $value");
 
-            var response = await http.put(
-              Uri.parse(url),
-              headers: {
-                'Content-Type': "$mimeType",
-                'Accept': "*/*",
-                'Content-Length': File(croppedPath).lengthSync().toString(),
-                'Connection': 'keep-alive',
-              },
-              body: File(croppedPath).readAsBytesSync(),
-            );
-
-            Constants.printValue("Response ${response.statusCode}");
-          } catch (e) {
-            Constants.printValue("First Error :: $e");
+            if(value.isNotEmpty){
+              setState(() {
+                paths.add(value);
+              });
+            }
           }
         },
         label: const Text('Upload'),

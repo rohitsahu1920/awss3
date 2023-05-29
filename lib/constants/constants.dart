@@ -111,7 +111,7 @@ class Constants {
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.file(File(path)),
+                child: Image.network(path),
               ),
             ),
           ),
