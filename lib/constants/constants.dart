@@ -10,6 +10,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class Constants {
+
+
+
+
   static Future<String> imagePicker({bool fromCamera = false}) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(

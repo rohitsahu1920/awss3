@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:s3/screens/home_page.dart';
+
 import 'constants/constants.dart';
 
 // ignore: depend_on_referenced_packages
@@ -10,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 
 import 'model/compress_response.dart';
+import 'model/single_pdf_res.dart';
 
 class Controller {
   static Future<bool> putMethodUpload({
@@ -51,7 +54,7 @@ class Controller {
     }
   }
 
-  static Future<String> compressApi({
+  static Future<Model> compressApi({
     required String croppedPath,
   }) async {
     try {
@@ -113,10 +116,94 @@ class Controller {
       Constants.printValue("Response ${response.statusCode}");
       Constants.printValue("Response ${response.body}");
 
-      CompressedModel compressedModel = CompressedModel.fromJson(jsonDecode(response.body));
-      Constants.printValue("Response after ::  ${compressedModel.lAYERRESP!.postedData!.fileNameURL}");
+      CompressedModel compressedModel =
+          CompressedModel.fromJson(jsonDecode(response.body));
+      Constants.printValue(
+          "Response after ::  ${compressedModel.lAYERRESP!.postedData!.fileNameURL}");
       if (response.statusCode == 200) {
-        return compressedModel.lAYERRESP!.postedData!.fileNameURL!;
+        return Model(
+            compressedModel.lAYERRESP!.postedData!.fileNameURL!,
+            compressedModel.lAYERRESP!.layerResponse!.layerResponseReturnParams!
+                .compressFileSize!);
+      } else {
+        return Model("", "");
+      }
+    } catch (e) {
+      Constants.printValue("Second Error :: $e");
+      return Model("", "");
+    }
+  }
+
+  static Future<String> singlePdfApi({
+    required List<Model> paths,
+  }) async {
+    try {
+      List<Map<String, dynamic>> links = [];
+
+      for (var x in paths) {
+        Map<String, dynamic> fileName = {
+          "FileNameURL": x.path,
+        };
+        links.add(fileName);
+      }
+
+      String url =
+          "https://uatcompressfile.takemyinsurance.com/api/IMGCOMPRESS_MultiFileInto_SinglePDF";
+
+      Map<String, dynamic> data = {
+        "vAppSubVersion": "203",
+        "vAppVersion": "2.3.14",
+        "vCode": "PROBITAS",
+        "vSTICKER": "BROWSER",
+        "vDeviceDetails":
+            "AID:5487863f4b994ba9~UID:~MOD:Android SDK built for x86~MFG:Google~SRN:unknown~BRA:google~IME:~SIM:GSM",
+        "vDeviceUID": "0",
+        "vLatitude": "0",
+        "vLogitude": "0",
+        "vRequestedService": "IMGCOMPRESS_MultiFileInto_SinglePDF",
+        "vExtraParam1": "nvExtraParam1",
+        "vExtraParam2": "nvExtraParam2",
+        "vProvider": "not set",
+        "vAccuracy": "0.0",
+        "vSpeed": "0.0",
+        "vDirection": "0.0",
+        "vAltitude": "0.0",
+        "vLocationAge": 1593875240422,
+        "vGPSTimeStamp": "0",
+        "vPassengerID": "0",
+        "vUserID": "mehulshah169@hotmail.com",
+        "vUserPassword": "998ac8c07701d000079140c8ea4e9949",
+        "vDeviceRepetativeValue":
+            "BLD:QSR1.190920.001~AOS:10 29~CHG:not charging~BAT:100.0~TMZ:GMT+05:30 Asia/Calcutta~TIM:Jul 4, 2020 8:37:20 PM~EML:~DEN:420~ORI:PORTRAIT~HGH:4.0~WID:2.0~DIG:4.99~SSW:411~OSW:411",
+        "vPassengerMobileNo": "",
+        "vPostedData": {
+          "FileNameArray": links,
+        }
+      };
+
+      Constants.printValue("APi Calling");
+      Constants.printValue("Url :: $url");
+      Constants.printValue("Req :: $url");
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': "application/json",
+          'Accept': "*/*",
+          'Connection': 'keep-alive',
+        },
+        body: jsonEncode(data),
+      );
+
+      Constants.printValue("Response ${response.statusCode}");
+      Constants.printValue("Response ${response.body}");
+
+      SinglePDFModel singlePDFModel =
+          SinglePDFModel.fromJson(jsonDecode(response.body));
+      Constants.printValue(
+          "Response after ::  ${singlePDFModel.lAYERRESP!.layerResponse!.layerResponseReturnParams!.compressFileURL}");
+      if (response.statusCode == 200) {
+        return singlePDFModel.lAYERRESP!.layerResponse!
+            .layerResponseReturnParams!.compressFileURL!;
       } else {
         return "";
       }
