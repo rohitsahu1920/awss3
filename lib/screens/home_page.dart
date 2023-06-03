@@ -132,6 +132,9 @@ class _HomePageState extends State<HomePage> {
                         IconButton(
                           onPressed: () {
                             paths.removeAt(index);
+                            setState(() {
+
+                            });
                           },
                           icon: const Icon(
                             Icons.delete,
