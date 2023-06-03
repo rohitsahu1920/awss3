@@ -17,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 // ignore: depend_on_referenced_packages
 import 'package:open_file/open_file.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:s3/constants/loader.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -41,14 +42,13 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: const Color(0xfff58220),
         title: const Text(
           "Doc Upload",
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            tooltip: 'Comment Icon',
-            onPressed: () async {
+          InkWell(
+            onTap: () async {
               try {
                 // String path = await ExtStorage.getExternalStoragePublicDirectory(
                 //     ExtStorage.DIRECTORY_DOWNLOADS);
@@ -61,10 +61,8 @@ class _HomePageState extends State<HomePage> {
                 // Constants.printValue("value $x :: ${dirThree.path} :: ${dir!.path} :: ${dirTwo.path}");
 
                 final status = await Permission.storage.request();
-                EasyLoading.show(
-                  status: 'loading...',
-                  dismissOnTap: false,
-                );
+                if(!mounted) return;
+                Loader.startLoad(context);
                 if (status.isGranted) {
                   // final dir =
                   //await getApplicationDocumentsDirectory();
@@ -78,7 +76,8 @@ class _HomePageState extends State<HomePage> {
                   String dir = (await getTemporaryDirectory()).path;
                   File file = File('$dir/$filename');
                   await file.writeAsBytes(bytes);
-                  EasyLoading.dismiss();
+                  if(!mounted) return;
+                  Loader.stopLoader(context);
                   Constants.printValue("Path :: $file");
                   Constants.printValue("Path :: ${file.path}");
                   final params =
@@ -91,7 +90,24 @@ class _HomePageState extends State<HomePage> {
                 Constants.printValue("Download Error :: $e");
               }
             },
-          ),
+            child:  Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: const Row(
+                  children: [
+                    SizedBox(width: 8,),
+                    Text("PDF"),
+                    SizedBox(width: 8,),
+                    Icon(Icons.cloud_download_outlined,color: Color(0xfff58220)),
+                    SizedBox(width: 8,),
+                  ],
+                ),
+              ),
+            ),
+          )
         ],
         elevation: 0,
       ),
@@ -132,9 +148,7 @@ class _HomePageState extends State<HomePage> {
                         IconButton(
                           onPressed: () {
                             paths.removeAt(index);
-                            setState(() {
-
-                            });
+                            setState(() {});
                           },
                           icon: const Icon(
                             Icons.delete,
@@ -158,10 +172,8 @@ class _HomePageState extends State<HomePage> {
           String croppedPath = await Constants.imageCropper(path: path);
 
           Constants.printValue("Cropped Path :: $croppedPath");
-          EasyLoading.show(
-            status: 'loading...',
-            dismissOnTap: false,
-          );
+          if(!mounted) return;
+          Loader.startLoad(context);
 
           bool value =
               await Controller.putMethodUpload(croppedPath: croppedPath);
@@ -177,8 +189,10 @@ class _HomePageState extends State<HomePage> {
               });
             }
           }
-          EasyLoading.dismiss();
+          if(!mounted) return;
+          Loader.stopLoader(context);
         },
+        backgroundColor: const Color(0xfff58220),
         label: const Text('Upload'),
         icon: const Icon(Icons.upload),
       ),
