@@ -1,16 +1,19 @@
-
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:s3/Controller.dart';
 import 'package:s3/constants/constants.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:permission_handler/permission_handler.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:open_file/open_file.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -22,21 +25,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class Model{
+class Model {
   String path;
   String size;
 
-  Model(this.path,this.size);
+  Model(this.path, this.size);
 }
 
 class _HomePageState extends State<HomePage> {
-
-
-
   List<Model> paths = [];
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +48,8 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Comment Icon',
-            onPressed: () async{
-              try{
+            onPressed: () async {
+              try {
                 // String path = await ExtStorage.getExternalStoragePublicDirectory(
                 //     ExtStorage.DIRECTORY_DOWNLOADS);
                 // final dir = await getExternalStorageDirectory();
@@ -64,31 +61,35 @@ class _HomePageState extends State<HomePage> {
                 // Constants.printValue("value $x :: ${dirThree.path} :: ${dir!.path} :: ${dirTwo.path}");
 
                 final status = await Permission.storage.request();
-                EasyLoading.show(status: 'loading...',dismissOnTap: false,);
-                if(status.isGranted){
+                EasyLoading.show(
+                  status: 'loading...',
+                  dismissOnTap: false,
+                );
+                if (status.isGranted) {
                   // final dir =
                   //await getApplicationDocumentsDirectory();
-                  String value =
-                  await Controller.singlePdfApi(paths: paths);
+                  String value = await Controller.singlePdfApi(paths: paths);
 
                   final filename = value.substring(value.lastIndexOf("/") + 1);
                   var request = await HttpClient().getUrl(Uri.parse(value));
                   var response = await request.close();
-                  var bytes = await consolidateHttpClientResponseBytes(response);
+                  var bytes =
+                      await consolidateHttpClientResponseBytes(response);
                   String dir = (await getTemporaryDirectory()).path;
                   File file = File('$dir/$filename');
                   await file.writeAsBytes(bytes);
                   EasyLoading.dismiss();
                   Constants.printValue("Path :: $file");
                   Constants.printValue("Path :: ${file.path}");
-                  final params = SaveFileDialogParams(sourceFilePath: file.path);
-                  final filePath = await FlutterFileDialog.saveFile(params: params);
+                  final params =
+                      SaveFileDialogParams(sourceFilePath: file.path);
+                  final filePath =
+                      await FlutterFileDialog.saveFile(params: params);
                   OpenFile.open(filePath);
                 }
-              }catch(e){
+              } catch (e) {
                 Constants.printValue("Download Error :: $e");
               }
-
             },
           ),
         ],
@@ -114,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   borderRadius: BorderRadius.circular(10),
-                  child:  Padding(
+                  child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(
                       children: [
@@ -128,8 +129,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Text(paths[index].size),
                         const Spacer(),
-                        const Icon(
-                          Icons.keyboard_arrow_right,
+                        IconButton(
+                          onPressed: () {
+                            paths.removeAt(index);
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                          ),
                         ),
                       ],
                     ),
@@ -149,7 +155,10 @@ class _HomePageState extends State<HomePage> {
           String croppedPath = await Constants.imageCropper(path: path);
 
           Constants.printValue("Cropped Path :: $croppedPath");
-          EasyLoading.show(status: 'loading...',dismissOnTap: false,);
+          EasyLoading.show(
+            status: 'loading...',
+            dismissOnTap: false,
+          );
 
           bool value =
               await Controller.putMethodUpload(croppedPath: croppedPath);
