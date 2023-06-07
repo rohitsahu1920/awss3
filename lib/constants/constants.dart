@@ -16,7 +16,7 @@ class Constants {
 
   static Future<String> imagePicker({bool fromCamera = false}) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final XFile? image = await picker.pickImage(imageQuality: 5,
         source: fromCamera ? ImageSource.camera : ImageSource.gallery);
     return image!.path;
   }

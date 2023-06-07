@@ -2,11 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:s3/Controller.dart';
+import 'package:s3/controller.dart';
 import 'package:s3/constants/constants.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
@@ -16,6 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:open_file/open_file.dart';
+
+// ignore: depend_on_referenced_packages
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:s3/constants/loader.dart';
 
@@ -61,7 +60,7 @@ class _HomePageState extends State<HomePage> {
                 // Constants.printValue("value $x :: ${dirThree.path} :: ${dir!.path} :: ${dirTwo.path}");
 
                 final status = await Permission.storage.request();
-                if(!mounted) return;
+                if (!mounted) return;
                 Loader.startLoad(context);
                 if (status.isGranted) {
                   // final dir =
@@ -76,21 +75,39 @@ class _HomePageState extends State<HomePage> {
                   String dir = (await getTemporaryDirectory()).path;
                   File file = File('$dir/$filename');
                   await file.writeAsBytes(bytes);
+                  if (!mounted) return;
+                  bool uploadRes =
+                      await Controller.putMethodUpload(croppedPath: file.path);
+                  if (uploadRes) {
+                    Model model =
+                        await Controller.compressApi(croppedPath: file.path);
+                    final filename = model.path.substring(model.path.lastIndexOf("/") + 1);
+                    var request = await HttpClient().getUrl(Uri.parse(model.path));
+                    var response = await request.close();
+                    var bytes =
+                    await consolidateHttpClientResponseBytes(response);
+                    String dir = (await getTemporaryDirectory()).path;
+                    File fileTwo = File('$dir/$filename');
+                    await fileTwo.writeAsBytes(bytes);
+                    Constants.printValue("Path :: $fileTwo");
+                    Constants.printValue("Path :: ${fileTwo.path}");
+                    final params =
+                        SaveFileDialogParams(sourceFilePath: fileTwo.path);
+                    String? path =
+                        await FlutterFileDialog.saveFile(params: params);
+                    //paths.clear();
+                    Constants.printValue("Path :: $path");
+                    OpenFile.open(path);
+                    setState(() {});
+                  }
                   if(!mounted) return;
                   Loader.stopLoader(context);
-                  Constants.printValue("Path :: $file");
-                  Constants.printValue("Path :: ${file.path}");
-                  final params =
-                      SaveFileDialogParams(sourceFilePath: file.path);
-                  final filePath =
-                      await FlutterFileDialog.saveFile(params: params);
-                  OpenFile.open(filePath);
                 }
               } catch (e) {
                 Constants.printValue("Download Error :: $e");
               }
             },
-            child:  Padding(
+            child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Card(
                 shape: RoundedRectangleBorder(
@@ -98,11 +115,18 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Row(
                   children: [
-                    SizedBox(width: 8,),
+                    SizedBox(
+                      width: 8,
+                    ),
                     Text("PDF"),
-                    SizedBox(width: 8,),
-                    Icon(Icons.cloud_download_outlined,color: Color(0xfff58220)),
-                    SizedBox(width: 8,),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Icon(Icons.cloud_download_outlined,
+                        color: Color(0xfff58220)),
+                    SizedBox(
+                      width: 8,
+                    ),
                   ],
                 ),
               ),
@@ -143,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           width: 10,
                         ),
-                        Text(paths[index].size),
+                        Text("${paths[index].size} KB"),
                         const Spacer(),
                         IconButton(
                           onPressed: () {
@@ -172,7 +196,7 @@ class _HomePageState extends State<HomePage> {
           String croppedPath = await Constants.imageCropper(path: path);
 
           Constants.printValue("Cropped Path :: $croppedPath");
-          if(!mounted) return;
+          if (!mounted) return;
           Loader.startLoad(context);
 
           bool value =
@@ -189,7 +213,7 @@ class _HomePageState extends State<HomePage> {
               });
             }
           }
-          if(!mounted) return;
+          if (!mounted) return;
           Loader.stopLoader(context);
         },
         backgroundColor: const Color(0xfff58220),
