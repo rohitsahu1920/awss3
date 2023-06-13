@@ -15,9 +15,9 @@ class Loader {
       barrierDismissible: false,
       context: context,
       pageBuilder: (context, anim1, anim2) {
-        return const Center(
+        return Center(
           child: Wrap(
-            children: <Widget>[
+            children: const <Widget>[
               SpinKitThreeBounce(
                 color: Colors.orange,
               )

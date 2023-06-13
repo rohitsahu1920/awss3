@@ -81,11 +81,13 @@ class _HomePageState extends State<HomePage> {
                   if (uploadRes) {
                     Model model =
                         await Controller.compressApi(croppedPath: file.path);
-                    final filename = model.path.substring(model.path.lastIndexOf("/") + 1);
-                    var request = await HttpClient().getUrl(Uri.parse(model.path));
+                    final filename =
+                        model.path.substring(model.path.lastIndexOf("/") + 1);
+                    var request =
+                        await HttpClient().getUrl(Uri.parse(model.path));
                     var response = await request.close();
                     var bytes =
-                    await consolidateHttpClientResponseBytes(response);
+                        await consolidateHttpClientResponseBytes(response);
                     String dir = (await getTemporaryDirectory()).path;
                     File fileTwo = File('$dir/$filename');
                     await fileTwo.writeAsBytes(bytes);
@@ -100,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                     OpenFile.open(path);
                     setState(() {});
                   }
-                  if(!mounted) return;
+                  if (!mounted) return;
                   Loader.stopLoader(context);
                 }
               } catch (e) {
@@ -113,8 +115,8 @@ class _HomePageState extends State<HomePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: const Row(
-                  children: [
+                child: Row(
+                  children: const [
                     SizedBox(
                       width: 8,
                     ),

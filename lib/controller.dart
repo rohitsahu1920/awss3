@@ -122,7 +122,7 @@ class Controller {
           "Response after ::  ${compressedModel.lAYERRESP!.postedData!.fileNameURL}");
       if (response.statusCode == 200) {
         return Model(
-            compressedModel.lAYERRESP!.postedData!.fileNameURL!,
+            compressedModel.lAYERRESP!.layerResponse!.layerResponseReturnParams!.compressFileURL!,
             compressedModel.lAYERRESP!.layerResponse!.layerResponseReturnParams!
                 .compressFileSize!);
       } else {
